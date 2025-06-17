@@ -1,5 +1,4 @@
 # syntax=docker/dockerfile:1
-# vim: set filetype=dockerfile
 #----------------------------------------------------------------------------------------------------
 FROM alpine
 
@@ -35,5 +34,9 @@ RUN apk --update --no-cache upgrade && apk --no-cache add dnscrypt-proxy dnsmasq
     '/usr/sbin/dnsmasq --keep-in-foreground --cache-size=1024 --no-poll --no-resolv --server=127.0.0.1#5300 $ARGS' \
     >/entrypoint.sh
 
+
+
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD ["--user=nobody"]
+#----------------------------------------------------------------------------------------------------
+# vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab
