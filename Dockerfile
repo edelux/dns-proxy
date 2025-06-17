@@ -1,81 +1,20 @@
 # syntax=docker/dockerfile:1
 # vim: set filetype=dockerfile
 #----------------------------------------------------------------------------------------------------
-FROM debian:testing-slim AS testing
+FROM alpine
 
-ENV  DEBIAN_FRONTEND=noninteractive
-ENV  DEBCONF_NOWARNINGS=no
+RUN apk --update --no-cache upgrade && apk --no-cache add dnscrypt-proxy dnsmasq && \
+    printf '%s\n' "listen_addresses = ['127.0.0.1:5300']" \
+    "server_names = ['cloudflare']" "user_name = 'nobody'" \
+    "" "[sources]" "  [sources.'public-resolvers']" \
+    "  url = 'https://download.dnscrypt.info/resolvers-list/v2/public-resolvers.md'" \
+    "  cache_file = '/var/cache/dnscrypt-proxy/public-resolvers.md'" \
+    "  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'" \
+    "  refresh_delay = 72" >/etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
+    printf '%s\n' '#!/bin/sh' '' 'ARGS=$@' '' \
+    '/usr/bin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml &' '' \
+    '/usr/sbin/dnsmasq --keep-in-foreground --cache-size=1024 --no-poll --no-resolv --server=127.0.0.1#5300 $ARGS' \
+    >/entrypoint.sh
 
-RUN  apt update && apt -y upgrade && \
-     apt install -y dnscrypt-proxy ca-certificates
-
-RUN  mkdir /scratch /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy && \
-     chown nobody /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy && \
-     printf '%s\n' "listen_addresses = ['127.0.0.1:5300']" \
-     "server_names = ['cloudflare']" "user_name = 'nobody'" \
-     "" "[sources]" "  [sources.'public-resolvers']" \
-     "  url = 'https://download.dnscrypt.info/resolvers-list/v2/public-resolvers.md'" \
-     "  cache_file = '/var/cache/dnscrypt-proxy/public-resolvers.md'" \
-     "  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'" \
-     "  refresh_delay = 72" >/etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
-     tar cvf - /usr/sbin/dnscrypt-proxy \
-     /etc/ca-certificates/update.d /etc/ssl/certs /usr/share/ca-certificates \
-     /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /run \
-     /usr/lib/systemd/system/dnscrypt-proxy-resolvconf.service \
-     /usr/lib/systemd/system/dnscrypt-proxy.service \
-     /usr/lib/systemd/system/dnscrypt-proxy.socket \
-     /etc/dnscrypt-proxy/dnscrypt-proxy.toml \
-       | (cd /scratch; tar xvfp -)
-#----------------------------------------------------------------------------------------------------
-FROM debian:stable-slim AS stable
-
-ENV  DEBIAN_FRONTEND=noninteractive
-ENV  DEBCONF_NOWARNINGS=no
-
-RUN  apt update && apt -y upgrade && \
-     apt install -y dnsmasq openssl
-
-RUN  mkdir /scratch && \
-     tar cvf - /usr/sbin/dnsmasq \
-     /usr/lib/*-linux-gnu/perl-base /usr/bin/perl* \
-     /usr/lib/ssl /usr/bin/openssl /usr/bin/c_rehash /etc/ssl \
-     /etc/dnsmasq.conf /etc/init.d/dnsmasq /etc/insserv.conf.d/dnsmasq \
-     /etc/resolvconf/update.d/dnsmasq /etc/runit/runsvdir/default \
-     /etc/sv/dnsmasq /lib/systemd/system/dnsmasq.service /lib/systemd/system/dnsmasq@.service \
-     /usr/lib/resolvconf/dpkg-event.d/dnsmasq /usr/lib/tmpfiles.d/dnsmasq.conf \
-     /usr/share/dnsmasq /usr/share/runit/meta/dnsmasq /var/log/runit/dnsmasq \
-     /usr/share/dnsmasq/trust-anchors.conf \
-     /lib/*-linux-gnu/libm.so* /lib/*-linux-gnu/libc.so* \
-     /lib/*-linux-gnu/libssl.so* /lib/*-linux-gnu/libcrypto.so* \
-     /lib/*-linux-gnu/libsystemd.so* /lib/*-linux-gnu/libunistring.so* \
-     /lib/*-linux-gnu/libnetfilter_conntrack.so* /lib/*-linux-gnu/libhogweed.so* \
-     /lib/*-linux-gnu/libdbus* /lib/*-linux-gnu/libidn2* /lib/*-linux-gnu/libnettle.so* \
-     /lib/*-linux-gnu/libgcrypt.so* /lib/*-linux-gnu/liblzma.so* /lib/*-linux-gnu/liblzma.so* \
-     /lib/*-linux-gnu/libzstd.so* /lib/*-linux-gnu/liblz4.so* /lib/*-linux-gnu/libgpg-error.so* \
-     /lib/*-linux-gnu/libnfnetlink.so* /lib/*-linux-gnu/libmnl.so* /lib/*-linux-gnu/libnftnl.so* \
-     /lib/*-linux-gnu/libgmp.so* /lib/*-linux-gnu/libnftables.so* /lib/*-linux-gnu/libnftables.so* \
-     /lib/*-linux-gnu/libxtables.so* /lib/*-linux-gnu/libjansson.so* /lib*/ld-linux-* /lib/*-linux-gnu/libcap.so* \
-       | (cd /scratch; tar xvfp -)
-
-RUN  egrep 'root|^bin|daemon|nobody|dnsmasq' /etc/passwd >/scratch/etc/passwd && \
-     egrep 'root|^bin|daemon|nobody|dnsmasq' /etc/shadow >/scratch/etc/shadow && \
-     cp /etc/group /etc/os-release /etc/debian_version /scratch/etc
-#----------------------------------------------------------------------------------------------------
-FROM golang AS golang
-
-ENV GO111MODULE=off
-
-COPY entrypoint.go /go
-
-RUN  apt update && apt -y upgrade && \
-     CGO_ENABLED=0 go build -ldflags="-s -w" -o /entrypoint ./entrypoint.go && \
-     chmod +x /entrypoint
-#----------------------------------------------------------------------------------------------------
-FROM scratch
-
-COPY --from=golang /entrypoint /
-COPY --from=testing /scratch /
-COPY --from=stable /scratch /
-
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD ["--user=nobody"]
