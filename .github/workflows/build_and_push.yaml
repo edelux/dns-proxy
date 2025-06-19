@@ -14,11 +14,10 @@ on:
       - config.yaml
 
 jobs:
-  validate-yaml:
+  validate-yaml-config:
     uses: edelux/cicd-test-lint/.github/workflows/validate-yaml-config.yaml@main
     with:
       config_path: config.yaml
     permissions:
       contents: read
-    continue-on-error: false
 ...
