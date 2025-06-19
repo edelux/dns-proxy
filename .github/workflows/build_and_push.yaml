@@ -15,7 +15,7 @@ on:
 
 jobs:
   validate-yaml:
-    uses: edelux/cicd-build-push/.github/workflows/validate-yaml-config.yaml@main
+    uses: edelux/cicd-test-lint/.github/workflows/validate-yaml-config.yaml@main
     with:
       config_path: config.yaml
     permissions:
