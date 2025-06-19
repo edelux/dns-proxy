@@ -13,11 +13,13 @@ on:
     paths:
       - config.yaml
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   validate-yaml-config:
     uses: edelux/cicd-test-lint/.github/workflows/validate-yaml-config.yaml@main
     with:
       config_path: config.yaml
-    permissions:
-      contents: read
 ...
