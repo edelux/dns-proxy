@@ -1,0 +1,24 @@
+---
+name: Build and Push Docker image
+run-name: Build and Push
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - config.yaml
+
+  pull_request:
+    paths:
+      - config.yaml
+
+jobs:
+  validate-yaml:
+    uses: edelux/cicd-build-push/.github/workflows/validate-yaml-config.yaml@main
+    with:
+      config_path: config.yaml
+    permissions:
+      contents: read
+    continue-on-error: false
+...
