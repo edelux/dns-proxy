@@ -26,6 +26,9 @@ jobs:
   build-and-push:
     needs: validate-yaml-config
     uses: edelux/cicd-build-push/.github/workflows/build_push.yaml@main
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     permissions:
       id-token: write
