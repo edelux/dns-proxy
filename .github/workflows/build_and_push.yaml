@@ -17,6 +17,7 @@ jobs:
   validate-yaml-config:
     uses: edelux/cicd-test-lint/.github/workflows/validate-yaml-config.yaml@main
     with:
+      ENVIRONMENT: dev
       config_path: config.yaml
 
     permissions:
