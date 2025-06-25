@@ -27,7 +27,6 @@ jobs:
     needs: validate-yaml-config
     uses: edelux/cicd-build-push/.github/workflows/build_push.yaml@main
     with:
-      ENVIRONMENT: dev
       config_path: config.yaml
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
