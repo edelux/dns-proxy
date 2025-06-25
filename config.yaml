@@ -2,7 +2,9 @@
 environments:
   dev:
     docker:
-      tags: 0.0.4a
+      tags:
+        - 0.0.4a
+        - latest
       name: dnsmasq
       registry: docker.io
       filename: Dockerfile.debian
