@@ -6,12 +6,18 @@ on:
   workflow_dispatch:
 
   push:
-    paths:
-      - config.yaml
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+      - '.gitignore'
+      - '.github/**'
 
   pull_request:
-    paths:
-      - config.yaml
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+      - '.gitignore'
+      - '.github/**'
 
 jobs:
   validate-yaml-config:
