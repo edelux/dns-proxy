@@ -2,24 +2,25 @@
 #----------------------------------------------------------------------------------------------------
 FROM alpine
 
+ARG BUILD_TARGETARCH
+ARG BUILD_SIGNATURE
+ARG BUILD_VERSION
+ARG BUILD_DATE
+ARG GIT_COMMIT
 
-
-LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt"
-LABEL org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)."
-LABEL org.opencontainers.image.architecture="${TARGETARCH}"
-LABEL org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386,windows-amd64"
-LABEL org.opencontainers.image.platform="linux/${TARGETARCH}"
-LABEL org.opencontainers.image.source="https://github.com/edelux/dnsmasq"
-LABEL org.opencontainers.image.url="https://github.com/edelux/dnsmasq"
-LABEL org.opencontainers.image.version="0.0.5"
-LABEL org.opencontainers.image.authors="Ernie D'lux (edelux) EDH <edeluquez@hotmail.com>"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.created="2025-06-25T18:15:24Z"
-LABEL org.opencontainers.image.documentation="https://github.com/edelux/dnsmasq#readme"
-LABEL org.opencontainers.image.vendor="edelux"
-LABEL org.opencontainers.image.ref.name="edelux/dnsmasq:0.0.5"
-
-
+LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
+     org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
+      org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)." \
+     org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
+     org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
+     org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
+     org.opencontainers.image.source="https://github.com/edelux/dnsmasq" \
+     org.opencontainers.image.url="https://github.com/edelux/dnsmasq" \
+     org.opencontainers.image.version="${BUILD_VERSION:-0.0.0}" \
+     org.opencontainers.image.licenses="MIT" \
+     org.opencontainers.image.created=$BUILD_DATE \
+     org.opencontainers.image.documentation="https://github.com/edelux/dnsmasq#readme" \
+     org.opencontainers.image.vendor="edelux"
 
 RUN apk --update --no-cache upgrade && apk --no-cache add dnscrypt-proxy dnsmasq && \
     printf '%s\n' "listen_addresses = ['127.0.0.1:5300']" \
@@ -37,8 +38,6 @@ RUN apk --update --no-cache upgrade && apk --no-cache add dnscrypt-proxy dnsmasq
     '/usr/bin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml &' '' \
     '/usr/sbin/dnsmasq --keep-in-foreground --no-negcache --bogus-priv --cache-size=0 --no-poll --no-resolv --no-hosts --server=127.0.0.1#5300 $ARGS' \
     >/entrypoint.sh
-
-
 
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD ["--user=nobody"]
