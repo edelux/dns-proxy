@@ -5,10 +5,6 @@ docker:
   registry: docker.io
   filename: Dockerfile.alpine
   platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
-  tags:
-    - '0'
-    - '0.0'
-    - '0.0.6'
   build_args:
     - BUILD_TARGETARCH: {{ TARGETARCH }}
     - BUILD_VERSION: {{ VERSION }}
