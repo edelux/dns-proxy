@@ -35,7 +35,6 @@ jobs:
     with:
       config_path: config.yaml
     secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     permissions:
