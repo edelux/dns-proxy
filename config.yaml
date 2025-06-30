@@ -1,6 +1,6 @@
 ---
 docker:
-  latest: true
+  latest: false
   version: '{{ VERSION }}'
   registry: docker.io
   filename: Dockerfile.alpine
