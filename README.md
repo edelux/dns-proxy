@@ -19,5 +19,5 @@ docker run -d \
   --name secure-dns \
   -p 53:53/udp \
   -p 53:53/tcp \
-  edelux/dnsmasq:0.0
+  edelux/dnsmasq [--doh-server=cloudflare --server=/ec2.internal/10.18.0.2 --server=/amazonaws.com/10.18.0.2 --server=/compute.internal/10.18.0.2]
 ```

@@ -1,0 +1,26 @@
+---
+version: '3.8'
+
+services:
+  dnsmasq:
+    image: edelux/dnsmasq:1.0.0a
+    container_name: dnsmasq
+    read_only: false
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /run
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    command: >
+      --server=/ec2.internal/10.18.0.2
+      --server=/amazonaws.com/10.18.0.2
+      --server=/compute.internal/10.18.0.2
+      --doh-server=scaleway-fr
+    restart: unless-stopped
+...

@@ -1,8 +1,9 @@
 ---
 docker:
   latest: false
-  version: '{{ VERSION }}'
   registry: docker.io
+  version: '{{ VERSION }}'
+  filepath: docker
   filename: Dockerfile.alpine
   platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
   build_args:
