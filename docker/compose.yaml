@@ -10,8 +10,6 @@ services:
       - CHOWN
       - SETUID
       - SETGID
-    security_opt:
-      - no-new-privileges:true
     tmpfs:
       - /run
     ports:
@@ -21,6 +19,6 @@ services:
       --server=/ec2.internal/10.18.0.2
       --server=/amazonaws.com/10.18.0.2
       --server=/compute.internal/10.18.0.2
-      --doh-server=scaleway-fr
+      --doh-server=cloudflare
     restart: unless-stopped
 ...
