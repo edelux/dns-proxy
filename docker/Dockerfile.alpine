@@ -1,27 +1,19 @@
 # syntax=docker/dockerfile:1
 #----------------------------------------------------------------------------------------------------
-FROM golang:alpine AS builder
-
-WORKDIR /app
-COPY entrypoint.go .
-
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o entrypoint entrypoint.go
-
-#----------------------------------------------------------------------------------------------------
 FROM alpine AS base
 
 RUN  mkdir /scratch && apk add dnscrypt-proxy dnsmasq && \
      tar cvf - /run /tmp /var/tmp /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy | (cd /scratch; tar xvfp -) && \
      apk fetch --no-cache --output /tmp alpine-baselayout-data musl libffi zlib libcrypto3 \
      libssl3 ssl_client ca-certificates ca-certificates-bundle dnscrypt-proxy dnsmasq && \
-     apk fetch --no-cache --output /tmp busybox busybox-binsh && \
+     apk fetch --no-cache --output /tmp busybox busybox-binsh mawk && \
      ls /tmp/*.apk|xargs -n1 -I{} tar -xzvf {} -C /scratch && rm /scratch/.[SPp]* && \
      chown nobody:nobody /scratch/var/cache/dnscrypt-proxy
 
 #----------------------------------------------------------------------------------------------------
 FROM scratch
 COPY --from=base /scratch /
-COPY --from=builder /app/entrypoint /entrypoint
+COPY entrypoint.sh /
 COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 COPY dnsmasq.conf /etc/dnsmasq.conf
 
@@ -45,7 +37,8 @@ LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNS
      org.opencontainers.image.documentation="https://github.com/edelux/dnsmasq#readme" \
      org.opencontainers.image.vendor="edelux"
 
-ENTRYPOINT ["/entrypoint"]
+RUN  /bin/busybox --install -s
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD []
 #----------------------------------------------------------------------------------------------------
 # vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab
