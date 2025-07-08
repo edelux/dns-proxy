@@ -37,7 +37,9 @@ LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNS
      org.opencontainers.image.documentation="https://github.com/edelux/dnsmasq#readme" \
      org.opencontainers.image.vendor="edelux"
 
-RUN  /bin/busybox --install -s
+RUN  /bin/busybox --install -s && \
+     chmod 644 /etc/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnsmasq.conf
+
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD []
 #----------------------------------------------------------------------------------------------------
