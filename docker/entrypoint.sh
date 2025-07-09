@@ -23,5 +23,5 @@ for _ARG in "$@"; do
   esac
 done
 
-/usr/bin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml &
-/usr/sbin/dnsmasq --conf-file=/etc/dnsmasq.conf
+dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml &
+dnsmasq --conf-file=/etc/dnsmasq.conf

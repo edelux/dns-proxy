@@ -1,83 +1,65 @@
 # syntax=docker/dockerfile:1
-# vim: set filetype=dockerfile
 #----------------------------------------------------------------------------------------------------
-FROM debian:testing-slim AS testing
+FROM debian:testing-slim AS base
 
 ENV  DEBIAN_FRONTEND=noninteractive
 ENV  DEBCONF_NOWARNINGS=no
 
-RUN  apt update && apt -y upgrade && \
-     apt install -y dnscrypt-proxy ca-certificates
-
-RUN  mkdir /scratch /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy && \
-     chown nobody /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy && \
-     printf '%s\n' "listen_addresses = ['127.0.0.1:5300']" \
-     "server_names = ['cloudflare']" "user_name = 'nobody'" \
-     "" "[sources]" "  [sources.'public-resolvers']" \
-     "  url = 'https://download.dnscrypt.info/resolvers-list/v2/public-resolvers.md'" \
-     "  cache_file = '/var/cache/dnscrypt-proxy/public-resolvers.md'" \
-     "  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'" \
-     "  refresh_delay = 72" >/etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
-     tar cvf - /usr/sbin/dnscrypt-proxy \
-     /lib/*-linux-gnu/libc.so* /lib*/ld-linux-*.so* \
-     /etc/ca-certificates/update.d /etc/ssl/certs /usr/share/ca-certificates \
-     /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /run \
-     /usr/lib/systemd/system/dnscrypt-proxy-resolvconf.service \
-     /usr/lib/systemd/system/dnscrypt-proxy.service \
-     /usr/lib/systemd/system/dnscrypt-proxy.socket \
-     /etc/dnscrypt-proxy/dnscrypt-proxy.toml \
-       | (cd /scratch; tar xvfp -)
-#----------------------------------------------------------------------------------------------------
-FROM debian:stable-slim AS stable
-
-ENV  DEBIAN_FRONTEND=noninteractive
-ENV  DEBCONF_NOWARNINGS=no
+WORKDIR /tmp
 
 RUN  apt update && apt -y upgrade && \
-     apt install -y dnsmasq openssl
+     apt install -y dnscrypt-proxy dnsmasq ca-certificates openssl && \
+     mkdir -p /scratch /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy && \
+     chown nobody /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy && \
+     apt download dnsmasq-base libidn2-0 libnetfilter-conntrack3 libnettle8t64 libdbus-1-3 \
+     libhogweed6t64 libgmp10 libnftables1 libsystemd0 libunistring5 libnfnetlink0 \
+     libmnl0 libxtables12 libjansson4 libcap2 libnftnl11 dns-root-data && \
+     apt download openssl ca-certificates libssl3t64 libcrypt1 libzstd1 zlib1g perl-base perl-modules-5.40 perl && \
+     apt download base-files netbase busybox mawk && \
+     apt download dnscrypt-proxy libc6 && \
+     ls /tmp/*.deb|xargs -n1 -I{} dpkg -x {} /scratch && \
+     printf /bin/sh > /scratch/etc/shells && \
+     rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
+     cd /scratch/usr/bin && ln -s busybox sh && \
+     tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy \
+         /etc/passwd /etc/group /etc/shadow /etc/gshadow \
+         | (cd /scratch; tar xvfp -)
 
-RUN  mkdir /scratch && \
-     tar cvf - /usr/sbin/dnsmasq \
-     /usr/lib/*-linux-gnu/perl-base /usr/bin/perl* \
-     /usr/lib/ssl /usr/bin/openssl /usr/bin/c_rehash /etc/ssl \
-     /etc/dnsmasq.conf /etc/init.d/dnsmasq /etc/insserv.conf.d/dnsmasq \
-     /etc/resolvconf/update.d/dnsmasq /etc/runit/runsvdir/default \
-     /etc/sv/dnsmasq /lib/systemd/system/dnsmasq.service /lib/systemd/system/dnsmasq@.service \
-     /usr/lib/resolvconf/dpkg-event.d/dnsmasq /usr/lib/tmpfiles.d/dnsmasq.conf \
-     /usr/share/dnsmasq /usr/share/runit/meta/dnsmasq /var/log/runit/dnsmasq \
-     /usr/share/dnsmasq/trust-anchors.conf \
-     /lib/*-linux-gnu/libm.so* \
-     /lib/*-linux-gnu/libssl.so* /lib/*-linux-gnu/libcrypto.so* \
-     /lib/*-linux-gnu/libsystemd.so* /lib/*-linux-gnu/libunistring.so* \
-     /lib/*-linux-gnu/libnetfilter_conntrack.so* /lib/*-linux-gnu/libhogweed.so* \
-     /lib/*-linux-gnu/libdbus* /lib/*-linux-gnu/libidn2* /lib/*-linux-gnu/libnettle.so* \
-     /lib/*-linux-gnu/libgcrypt.so* /lib/*-linux-gnu/liblzma.so* /lib/*-linux-gnu/liblzma.so* \
-     /lib/*-linux-gnu/libzstd.so* /lib/*-linux-gnu/liblz4.so* /lib/*-linux-gnu/libgpg-error.so* \
-     /lib/*-linux-gnu/libnfnetlink.so* /lib/*-linux-gnu/libmnl.so* /lib/*-linux-gnu/libnftnl.so* \
-     /lib/*-linux-gnu/libgmp.so* /lib/*-linux-gnu/libnftables.so* /lib/*-linux-gnu/libnftables.so* \
-     /lib/*-linux-gnu/libxtables.so* /lib/*-linux-gnu/libjansson.so* /lib/*-linux-gnu/libcap.so* \
-       | (cd /scratch; tar xvfp -)
-
-RUN  egrep 'root|^bin|daemon|nobody|dnsmasq' /etc/passwd >/scratch/etc/passwd && \
-     egrep 'root|^bin|daemon|nobody|dnsmasq' /etc/shadow >/scratch/etc/shadow && \
-     cp /etc/group /etc/os-release /etc/debian_version /scratch/etc
-#----------------------------------------------------------------------------------------------------
-FROM golang AS golang
-
-ENV GO111MODULE=off
-
-COPY entrypoint.go /go
-
-RUN  apt update && apt -y upgrade && \
-     CGO_ENABLED=0 go build -ldflags="-s -w" -o /entrypoint ./entrypoint.go && \
-     chmod +x /entrypoint
 #----------------------------------------------------------------------------------------------------
 FROM scratch
+COPY --from=base /scratch /
+COPY entrypoint.sh /
+COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+COPY dnsmasq.conf /etc/dnsmasq.conf
 
-COPY --from=golang /entrypoint /
-COPY --from=testing /scratch /
-COPY --from=stable /scratch /
+ARG BUILD_TARGETARCH
+ARG BUILD_SIGNATURE
+ARG BUILD_VERSION
+ARG BUILD_DATE
+ARG GIT_COMMIT
 
-#ENTRYPOINT ["/entrypoint"]
-ENTRYPOINT ["/usr/sbin/dnscrypt-proxy", "-config"]
-CMD ["/etc/dnscrypt-proxy/dnscrypt-proxy.toml"]
+LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
+     org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
+      org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)." \
+     org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
+     org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
+     org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
+     org.opencontainers.image.source="https://github.com/edelux/dnsmasq" \
+     org.opencontainers.image.url="https://github.com/edelux/dnsmasq" \
+     org.opencontainers.image.version="${BUILD_VERSION:-0.0.0}" \
+     org.opencontainers.image.licenses="MIT" \
+     org.opencontainers.image.created=$BUILD_DATE \
+     org.opencontainers.image.documentation="https://github.com/edelux/dnsmasq#readme" \
+     org.opencontainers.image.vendor="edelux"
+
+RUN  busybox --install -s && \
+     ln -sf /usr/bin/mawk /usr/bin/awk && \
+     ln -sf /usr/bin/mawk /usr/bin/nawk && \
+     chmod 644 /etc/dnsmasq.conf /etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
+     find /usr/share/ca-certificates/ -name \*.crt|sed 's%^/usr/share/ca-certificates/%%' \
+       >/etc/ca-certificates.conf && update-ca-certificates
+
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+CMD []
+#----------------------------------------------------------------------------------------------------
+# vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab

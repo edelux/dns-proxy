@@ -2,7 +2,7 @@
 #----------------------------------------------------------------------------------------------------
 FROM alpine AS base
 
-RUN  mkdir /scratch && apk add dnscrypt-proxy dnsmasq && \
+RUN  mkdir /scratch && apk add dnscrypt-proxy dnsmasq ca-certificates && \
      tar cvf - /run /tmp /var/tmp /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy | (cd /scratch; tar xvfp -) && \
      apk fetch --no-cache --output /tmp alpine-baselayout-data musl libffi zlib libcrypto3 \
      libssl3 ssl_client ca-certificates ca-certificates-bundle dnscrypt-proxy dnsmasq && \
