@@ -1,9 +1,12 @@
 ---
 docker:
   latest: true
+  name: doh-proxy
+  alias: dnsmasq
   version: '{{ VERSION }}'
   registry: docker.io
-  filename: Dockerfile.alpine
+  filepath: docker
+  filename: Dockerfile.debian
   platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
   build_args:
     - BUILD_TARGETARCH: {{ TARGETARCH }}

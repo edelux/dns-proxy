@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1
+#----------------------------------------------------------------------------------------------------
+FROM alpine AS base
+
+RUN  mkdir /scratch && apk add dnscrypt-proxy dnsmasq ca-certificates && \
+     tar cvf - /run /tmp /var/tmp /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy | (cd /scratch; tar xvfp -) && \
+     apk fetch --no-cache --output /tmp alpine-baselayout-data musl libffi zlib libcrypto3 \
+     libssl3 ssl_client ca-certificates ca-certificates-bundle dnscrypt-proxy dnsmasq && \
+     apk fetch --no-cache --output /tmp busybox busybox-binsh mawk && \
+     ls /tmp/*.apk|xargs -n1 -I{} tar -xzvf {} -C /scratch && rm /scratch/.[SPp]* && \
+     chown nobody:nobody /scratch/var/cache/dnscrypt-proxy
+
+#----------------------------------------------------------------------------------------------------
+FROM scratch
+COPY --from=base /scratch /
+COPY entrypoint.sh /
+COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+COPY dnsmasq.conf /etc/dnsmasq.conf
+
+ARG BUILD_TARGETARCH
+ARG BUILD_SIGNATURE
+ARG BUILD_VERSION
+ARG BUILD_DATE
+ARG GIT_COMMIT
+
+LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
+     org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
+      org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)." \
+     org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
+     org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
+     org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
+     org.opencontainers.image.source="https://github.com/edelux/doh-proxy" \
+     org.opencontainers.image.url="https://github.com/edelux/doh-proxy" \
+     org.opencontainers.image.version="${BUILD_VERSION:-0.0.8}" \
+     org.opencontainers.image.licenses="MIT" \
+     org.opencontainers.image.created=$BUILD_DATE \
+     org.opencontainers.image.documentation="https://github.com/edelux/dho-proxy#readme" \
+     org.opencontainers.image.vendor="edelux"
+
+RUN  /bin/busybox --install -s && \
+     chmod 644 /etc/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnsmasq.conf
+
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+CMD []
+#----------------------------------------------------------------------------------------------------
+# vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab
