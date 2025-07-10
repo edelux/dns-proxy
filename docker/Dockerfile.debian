@@ -44,12 +44,12 @@ LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNS
      org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
      org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
      org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
-     org.opencontainers.image.source="https://github.com/edelux/dnsmasq" \
-     org.opencontainers.image.url="https://github.com/edelux/dnsmasq" \
-     org.opencontainers.image.version="${BUILD_VERSION:-0.0.0}" \
+     org.opencontainers.image.source="https://github.com/edelux/doh-proxy" \
+     org.opencontainers.image.url="https://github.com/edelux/doh-proxy" \
+     org.opencontainers.image.version="${BUILD_VERSION:-0.0.8}" \
      org.opencontainers.image.licenses="MIT" \
      org.opencontainers.image.created=$BUILD_DATE \
-     org.opencontainers.image.documentation="https://github.com/edelux/dnsmasq#readme" \
+     org.opencontainers.image.documentation="https://github.com/edelux/doh-proxy#readme" \
      org.opencontainers.image.vendor="edelux"
 
 RUN  busybox --install -s && \

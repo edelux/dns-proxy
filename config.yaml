@@ -1,6 +1,6 @@
 ---
 docker:
-  latest: false
+  latest: true
   registry: docker.io
   version: '{{ VERSION }}'
   filepath: docker
