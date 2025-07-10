@@ -78,7 +78,7 @@ All parameters are optional and can be combined freely.
 - Focused on minimalism, clarity, and reproducibility
 
 ### 📎 Links
-[`DockerHub Repository` edelux/doh-proxy](https://hub.docker.com/repository/docker/edelux/doh-proxy)
+[edelux/doh-proxy](https://hub.docker.com/repository/docker/edelux/doh-proxy)
 
 ### ✨ License
 This project is released under the [`MIT`](https://github.com/edelux/doh-proxy#MIT-1-ov-file)
