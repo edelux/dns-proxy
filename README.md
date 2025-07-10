@@ -44,9 +44,9 @@ Configuration is handled at runtime using command-line flags:
 
 | Flag | Description |
 | :--- | --- |
-| --server= | Specifies a plain DNS server (e.g. --server=/amazonaws.com/10.18.0.2).<br>Recommended for internal or cloud-specific domains. |
-| --doh-server= | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, <br>DoH, Anonymized DNSCrypt, and ODoH. |
-| --doh-route= | Specifies which anonymized resolver to use when querying DoH <br>providers. |
+| --server= | Specifies a plain DNS server (e.g. --server=/amazonaws.com/10.18.0.2).  Recommended <br>for internal or cloud-specific domains. |
+| --doh-server= | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, DoH, Anonymized <br>DNSCrypt, and ODoH. |
+| --doh-route= | Specifies which anonymized resolver to use when querying DoH providers. |
 | --anonymized | Enables anonymized routing of DoH queries using relay resolvers. |
 
 All parameters are optional and can be combined freely.
