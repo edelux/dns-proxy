@@ -84,7 +84,7 @@ All parameters are optional and can be combined freely.
 This project is released under the [`MIT`](https://github.com/edelux/doh-proxy#MIT-1-ov-file)
 
 ---
-## 🔁 Repository Renaming Notice
+#### 🔁 Repository Renaming Notice
 This project was formerly published as:
 - [`Docker Hub:`edelux/dnsmasq](https://hub.docker.com/repository/docker/edelux/dnsmasq)
 - [`GitHub:` edelux/dnsmasq](https://github.com/edelux/dnsmasq)
