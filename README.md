@@ -44,10 +44,10 @@ Configuration is handled at runtime using command-line flags:
 
 | Flag | Description |
 | :--- | --- |
-| --server= | Specifies a plain DNS server (e.g. --server=/amazonaws.com/10.18.0.2). Recommended for internal or cloud-specific domains. |
-| --doh-server= | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, DoH, Anonymized DNSCrypt, and ODoH. |
-| --doh-route= | Specifies which anonymized resolver to use when querying DoH providers. |
-| --anonymized | Enables anonymized routing of DoH queries using relay resolvers. |
+| `--server=` | Specifies a plain DNS server (e.g. `--server=/amazonaws.com/10.18.0.2`). Recommended for internal or cloud-specific domains. |
+| `--doh-server=` | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, DoH, Anonymized DNSCrypt, and ODoH. |
+| `--doh-route=` | Specifies which anonymized resolver to use when querying DoH providers. |
+| `--anonymized` | Enables anonymized routing of DoH queries using relay resolvers. |
 
 All parameters are optional and can be combined freely.
 
@@ -78,7 +78,7 @@ All parameters are optional and can be combined freely.
 - Focused on minimalism, clarity, and reproducibility
 
 ### 📎 Links
-[`GitHub Repository`](https://github.com/edelux/doh-proxy)
+[`DockerHub Repository` edelux/doh-proxy](https://hub.docker.com/repository/docker/edelux/doh-proxy)
 
 ### ✨ License
 This project is released under the [`MIT`](https://github.com/edelux/doh-proxy#MIT-1-ov-file)
