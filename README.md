@@ -5,7 +5,7 @@ A secure, minimal DNS resolver container with DNS-over-HTTPS (DoH), caching, and
 
 ## 🐧 About
 
-`edelux/doh-proxy` is a lightweight container built from [Debian Testing](https://www.debian.org/releases/testing/) and designed for high-security, low-footprint DNS resolution.
+`edelux/dns-proxy` is a lightweight container built from [Debian Testing](https://www.debian.org/releases/testing/) and designed for high-security, low-footprint DNS resolution.
 
 This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-proxy) and [`dnsmasq`](https://thekelleys.org.uk/dnsmasq/doc.html) to provide:
 
@@ -23,11 +23,11 @@ This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-prox
 
 Run the container with default ports and custom parameters:
 ```zsh
-docker run --rm -p 53:53/udp -d edelux/doh-proxy
+docker run --rm -p 53:53/udp -d edelux/dns-proxy
 ```
 
 ```zsh
-docker run --rm -p 53:53/udp -d edelux/doh-proxy \
+docker run --rm -p 53:53/udp -d edelux/dns-proxy \
   --anonymized \
   --server=/ec2.internal/10.18.0.2 \
   --server=/amazonaws.com/10.18.0.2
@@ -78,10 +78,10 @@ All parameters are optional and can be combined freely.
 - Focused on minimalism, clarity, and reproducibility
 
 ### 📎 Links
-[edelux/doh-proxy](https://hub.docker.com/repository/docker/edelux/doh-proxy)
+[edelux/dns-proxy](https://hub.docker.com/repository/docker/edelux/dns-proxy)
 
 ### ✨ License
-This project is released under the [`MIT`](https://github.com/edelux/doh-proxy#MIT-1-ov-file)
+This project is released under the [`MIT`](https://github.com/edelux/dns-proxy#MIT-1-ov-file)
 
 ---
 #### 🔁 Repository Renaming Notice
@@ -90,4 +90,4 @@ This project was formerly published as:
 - [`GitHub:` edelux/dnsmasq](https://github.com/edelux/dnsmasq)
 
 
-Support for new images will continue under the new name edelux/doh-proxy. The previous image and repository will remain available but will only mirror updates made to this project until December 31, 2025.
+Support for new images will continue under the new name edelux/dns-proxy. The previous image and repository will remain available but will only mirror updates made to this project until December 31, 2025.

@@ -1,7 +1,6 @@
 ---
 docker:
   latest: true
-  name: doh-proxy
   alias: dnsmasq
   version: '{{ VERSION }}'
   registry: docker.io
