@@ -1,8 +1,10 @@
 ---
 docker:
   latest: true
-  registry: docker.io
+  name: doh-proxy
+  alias: dnsmasq
   version: '{{ VERSION }}'
+  registry: docker.io
   filepath: docker
   filename: Dockerfile.debian
   platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
