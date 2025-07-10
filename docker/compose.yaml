@@ -3,8 +3,8 @@ version: '3.8'
 
 services:
   dnsmasq:
-    image: edelux/dnsmasq:0.0.8
-    container_name: dnsmasq
+    image: edelux/doh-proxy:latest
+    container_name: doh-proxy
     read_only: false
     cap_add:
       - CHOWN
