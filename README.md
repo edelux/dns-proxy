@@ -42,7 +42,7 @@ This configuration enables:
 ## ⚙️ Configuration via Parameters
 Configuration is handled at runtime using command-line flags:
 
-| Flag          | Description |
+| Flag         ‧| Description |
 | :------------ | --- |
 | --server=     | Specifies a plain DNS server (e.g. --server=/amazonaws.com/10.18.0.2). Recommended for internal or cloud-specific domains. |
 | --doh-server= | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, DoH, Anonymized DNSCrypt, and ODoH. |
