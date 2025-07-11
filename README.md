@@ -44,12 +44,65 @@ Configuration is handled at runtime using command-line flags:
 
 | Flag | Description |
 | :--- | --- |
-| --server= | Specifies a plain DNS server (e.g. --server=/amazonaws.com/10.18.0.2).  Recommended <br>for internal or cloud-specific domains. |
+| --server=     | Specifies a plain DNS server (e.g. --server=/amazonaws.com/10.18.0.2).  Recommended <br>for internal or cloud-specific domains. |
 | --doh-server= | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, DoH, Anonymized <br>DNSCrypt, and ODoH. |
-| --doh-route= | Specifies which anonymized resolver to use when querying DoH providers. |
-| --anonymized | Enables anonymized routing of DoH queries using relay resolvers. |
+| --doh-route=  | Specifies which anonymized resolver to use when querying DoH providers. |
+| --nocache     | Disables all DNS caching. Useful for debugging or environments where caching is <br>not desirable. |
+| cachesize= | Sets the maximum number of DNS entries to cache. Set to 0 to disable caching <br>entirely. |
+| --anonymized  | Enables anonymized routing of DoH queries using relay resolvers. |
 
 All parameters are optional and can be combined freely.
+
+## ♻️ Default Settings
+
+**dmsmasq**
+```conf
+no-poll
+no-hosts
+no-resolv
+bogus-priv
+user=nobody
+group=nogroup
+cache-size=128
+keep-in-foreground
+server=127.0.0.1#5300
+```
+
+**dnscrypt-proxy**
+```toml
+listen_addresses = ['127.0.0.1:5300']
+user_name = 'nobody'
+keepalive = 30
+
+server_names = ['cloudflare', 'odoh-cloudflare', 'scaleway-fr', 'yandex', 'anon-cs-berlin', 'anon-cs-ch', 'anon-cs-dc', 'anon-cs-fl']
+lb_strategy = 'ph'
+lb_estimator = true
+
+log_level = 0
+require_nolog = true
+require_nofilter = true
+ignore_system_dns = true
+
+require_dnssec = true
+dnscrypt_servers = true
+odoh_servers = true
+doh_servers = true
+
+[sources]
+  [sources.'public-resolvers']
+    cache_file = 'public-resolvers.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md',
+      'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md']
+  [sources.relays]
+    cache_file = 'relays.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 73
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md',
+      'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md',
+      'https://download.dnscrypt.info/resolvers-list/v3/relays.md']
+```
 
 ---
 ### 📦 Architecture Support

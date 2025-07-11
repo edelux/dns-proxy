@@ -16,8 +16,6 @@ dnscrypt_servers = true
 odoh_servers = true
 doh_servers = true
 
-#ANONYMIZED
-
 [sources]
   [sources.'public-resolvers']
     cache_file = 'public-resolvers.md'

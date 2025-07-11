@@ -1,6 +1,6 @@
 ---
 docker:
-  latest: true
+  latest: false
   alias: dnsmasq
   version: '{{ VERSION }}'
   registry: docker.io
