@@ -2,8 +2,9 @@
 version: '3.8'
 
 services:
-  dnsmasq:
-    image: edelux/dns-proxy
+  dns-proxy:
+    image: edelux/dns-proxy:latest
+    pull_policy: always
     container_name: dns-proxy
     read_only: false
     cap_add:
@@ -13,9 +14,11 @@ services:
     tmpfs:
       - /run
     ports:
+      - 53:53/tcp
       - 53:53/udp
     command: >
       --anonymized
+      --cachesize=1024
       --server=/ec2.internal/10.18.0.2
       --server=/amazonaws.com/10.18.0.2
       --server=/compute.internal/10.18.0.2
