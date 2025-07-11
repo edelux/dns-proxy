@@ -48,7 +48,7 @@ Configuration is handled at runtime using command-line flags:
 | --doh-server= | Defines the secure DoH or DNSCrypt v2 server. Supports DNSCrypt, DoH, Anonymized <br>DNSCrypt, and ODoH. |
 | --doh-route=  | Specifies which anonymized resolver to use when querying DoH providers. |
 | --nocache     | Disables all DNS caching. Useful for debugging or environments where caching is <br>not desirable. |
-| cachesize= | Sets the maximum number of DNS entries to cache. Set to 0 to disable caching <br>entirely. |
+| --cachesize=  | Sets the maximum number of DNS entries to cache. Set to 0 to disable caching <br>entirely. |
 | --anonymized  | Enables anonymized routing of DoH queries using relay resolvers. |
 
 All parameters are optional and can be combined freely.
