@@ -4,11 +4,11 @@ FROM alpine AS base
 
 RUN  mkdir /scratch && apk add dnscrypt-proxy dnsmasq ca-certificates && \
      tar cvf - /run /tmp /var/tmp /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy | (cd /scratch; tar xvfp -) && \
-     apk fetch --no-cache --output /tmp alpine-baselayout-data musl libffi zlib libcrypto3 \
+     apk fetch --no-cache --output /tmp alpine-baselayout-data alpine-release musl libffi zlib libcrypto3 \
      libssl3 ssl_client ca-certificates ca-certificates-bundle dnscrypt-proxy dnsmasq && \
-     apk fetch --no-cache --output /tmp busybox busybox-binsh mawk && \
+     apk fetch --no-cache --output /tmp busybox busybox-binsh mawk ca-certificates && \
      ls /tmp/*.apk|xargs -n1 -I{} tar -xzvf {} -C /scratch && rm /scratch/.[SPp]* && \
-     chown nobody:nobody /scratch/var/cache/dnscrypt-proxy
+     chown nobody /scratch/var/cache/dnscrypt-proxy
 
 #----------------------------------------------------------------------------------------------------
 FROM scratch
@@ -38,9 +38,12 @@ LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNS
      org.opencontainers.image.vendor="edelux"
 
 RUN  /bin/busybox --install -s && \
-     chmod 644 /etc/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnsmasq.conf
+     ln -sf /usr/bin/mawk /usr/bin/awk && \
+     ln -sf /usr/bin/mawk /usr/bin/nawk && \
+     chmod 644 /etc/dnsmasq.conf /etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
+     update-ca-trust extract || update-ca-certificates || true
 
-ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+ENTRYPOINT ["sh", "/entrypoint.sh"]
 CMD []
 #----------------------------------------------------------------------------------------------------
 # vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab

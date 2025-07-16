@@ -1,0 +1,57 @@
+# syntax=docker/dockerfile:1
+#----------------------------------------------------------------------------------------------------
+FROM fedora AS base
+
+#     dnf install -y cpio dnscrypt-proxy dnsmasq ca-certificates openssl mawk busybox && \
+RUN  dnf update -y && dnf install -y cpio busybox && mkdir -p /scratch && \
+     dnf download --resolve --destdir=/tmp dnsmasq dnscrypt-proxy ca-certificates openssl p11-kit-trust mawk busybox \
+     glibc dbus-libs iptables-libs jansson libedit libmnl libnetfilter_conntrack libnfnetlink libnftnl \
+     libidn2 nettle gmp systemd-libs nftables shadow-utils fedora-release filesystem libunistring \
+     libcap libgcc ncurses-libs findutils libselinux pcre2 && cd /scratch && \
+     for R in /tmp/*.rpm; do rpm2cpio $R | cpio -idmv; done && \
+     ln -sf /bin/busybox /bin/sh && ln -sf /usr/bin /usr/sbin && printf /bin/sh >/scratch/etc/shells && \
+     rm -fr /scratch/etc/dnscrypt-proxy/*.txt /scratch/usr/share/doc \
+     /scratch/usr/share/man /scratch/usr/share/licenses /scratch/usr/share/locale && \
+     tar cvf - /bin/sh /usr/sbin /etc/passwd /etc/group /etc/shadow /etc/gshadow /etc/ethertypes /etc/protocols \
+         /etc/fedora-release /etc/redhat-release /etc/system-release /etc/system-release-cpe /etc/os-release \
+         /usr/lib/fedora-release /usr/lib/os-release /usr/lib/system-release-cpe \
+         /etc/pki/tls/ct_log_list.cnf /etc/pki/tls/openssl.cnf \
+         | (cd /scratch; tar xvfp -)
+
+#----------------------------------------------------------------------------------------------------
+FROM scratch
+COPY --from=base /scratch /
+COPY entrypoint.sh /
+COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+COPY dnsmasq.conf /etc/dnsmasq.conf
+
+ARG BUILD_TARGETARCH
+ARG BUILD_SIGNATURE
+ARG BUILD_VERSION
+ARG BUILD_DATE
+ARG GIT_COMMIT
+
+LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
+      org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
+      org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)." \
+      org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
+      org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
+      org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
+      org.opencontainers.image.source="https://github.com/edelux/dns-proxy" \
+      org.opencontainers.image.url="https://github.com/edelux/dns-proxy" \
+      org.opencontainers.image.version="${BUILD_VERSION:-0.0.8}" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.created=$BUILD_DATE \
+      org.opencontainers.image.documentation="https://github.com/edelux/dns-proxy#readme" \
+      org.opencontainers.image.vendor="edelux"
+
+RUN  /usr/bin/busybox --install -s && \
+     ln -sf /usr/bin/mawk /usr/bin/awk && \
+     ln -sf /usr/bin/mawk /usr/bin/nawk && \
+     chmod 644 /etc/dnsmasq.conf /etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
+     update-ca-trust extract || update-ca-certificates || true
+
+ENTRYPOINT ["sh", "/entrypoint.sh"]
+CMD []
+#----------------------------------------------------------------------------------------------------
+# vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab

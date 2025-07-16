@@ -21,7 +21,7 @@ RUN  apt update && apt -y upgrade && \
      printf /bin/sh > /scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
      cd /scratch/usr/bin && ln -s busybox sh && \
-     tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy \
+     tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /etc/ca-certificates.conf \
          /etc/passwd /etc/group /etc/shadow /etc/gshadow \
          | (cd /scratch; tar xvfp -)
 
@@ -56,10 +56,9 @@ RUN  busybox --install -s && \
      ln -sf /usr/bin/mawk /usr/bin/awk && \
      ln -sf /usr/bin/mawk /usr/bin/nawk && \
      chmod 644 /etc/dnsmasq.conf /etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
-     find /usr/share/ca-certificates/ -name \*.crt|sed 's%^/usr/share/ca-certificates/%%' \
-       >/etc/ca-certificates.conf && update-ca-certificates
+     update-ca-trust extract || update-ca-certificates || true
 
-ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+ENTRYPOINT ["sh", "/entrypoint.sh"]
 CMD []
 #----------------------------------------------------------------------------------------------------
 # vim: set filetype=dockerfile tabstop=4 shiftwidth=4 expandtab
