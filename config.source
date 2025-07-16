@@ -1,4 +1,5 @@
 # export TARGETARCH=$(cat /etc/apk/arch)
-export TARGETARCH=$(dpkg --print-architecture)
+# export TARGETARCH=$(dpkg --print-architecture)
+export TARGETARCH=$(arch)
 export DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 export VERSION='0.2.0'
