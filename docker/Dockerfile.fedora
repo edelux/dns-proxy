@@ -3,8 +3,8 @@
 FROM fedora AS base
 
 #     dnf install -y cpio dnscrypt-proxy dnsmasq ca-certificates openssl mawk busybox && \
-RUN  dnf update -y && dnf install -y cpio busybox-static && mkdir -p /scratch && \
-     dnf download --resolve --destdir=/tmp dnsmasq dnscrypt-proxy ca-certificates openssl p11-kit-trust mawk busybox-static \
+RUN  dnf update -y && dnf install -y cpio busybox && mkdir -p /scratch && \
+     dnf download --resolve --destdir=/tmp dnsmasq dnscrypt-proxy ca-certificates openssl p11-kit-trust mawk busybox \
      glibc dbus-libs iptables-libs jansson libedit libmnl libnetfilter_conntrack libnfnetlink libnftnl \
      libidn2 nettle gmp systemd-libs nftables shadow-utils fedora-release filesystem libunistring \
      libcap libgcc ncurses-libs findutils libselinux pcre2 && cd /scratch && \
