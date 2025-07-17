@@ -17,7 +17,7 @@ RUN  apt update && apt -y upgrade && \
      apt download openssl ca-certificates libssl3t64 libcrypt1 libzstd1 zlib1g perl-base perl-modules-5.40 perl && \
      apt download base-files netbase busybox mawk && \
      apt download dnscrypt-proxy libc6 && \
-     ls /tmp/*.deb|xargs -n1 -I{} dpkg -x {} /scratch && \
+     ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
      printf /bin/sh > /scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
      cd /scratch/usr/bin && ln -s busybox sh && \
@@ -39,24 +39,24 @@ ARG BUILD_DATE
 ARG GIT_COMMIT
 
 LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
-     org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
+      org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
       org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)." \
-     org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
-     org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
-     org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
-     org.opencontainers.image.source="https://github.com/edelux/dns-proxy" \
-     org.opencontainers.image.url="https://github.com/edelux/dns-proxy" \
-     org.opencontainers.image.version="${BUILD_VERSION:-0.0.8}" \
-     org.opencontainers.image.licenses="MIT" \
-     org.opencontainers.image.created=$BUILD_DATE \
-     org.opencontainers.image.documentation="https://github.com/edelux/dns-proxy#readme" \
-     org.opencontainers.image.vendor="edelux"
+      org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
+      org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
+      org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
+      org.opencontainers.image.source="https://github.com/edelux/dns-proxy" \
+      org.opencontainers.image.url="https://github.com/edelux/dns-proxy" \
+      org.opencontainers.image.version="${BUILD_VERSION:-0.0.8}" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.created=$BUILD_DATE \
+      org.opencontainers.image.documentation="https://github.com/edelux/dns-proxy#readme" \
+      org.opencontainers.image.vendor="edelux"
 
-RUN  busybox --install -s && \
+RUN  /usr/bin/busybox --install -s && \
      ln -sf /usr/bin/mawk /usr/bin/awk && \
      ln -sf /usr/bin/mawk /usr/bin/nawk && \
      chmod 644 /etc/dnsmasq.conf /etc/dnscrypt-proxy/dnscrypt-proxy.toml && \
-     update-ca-trust extract || update-ca-certificates || true
+     update-ca-trust extract >/dev/null 2>&1 || update-ca-certificates >/dev/null 2>&1
 
 ENTRYPOINT ["sh", "/entrypoint.sh"]
 CMD []

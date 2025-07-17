@@ -74,7 +74,7 @@ listen_addresses = ['127.0.0.1:5300']
 user_name = 'nobody'
 keepalive = 30
 
-server_names = ['cloudflare', 'odoh-cloudflare', 'scaleway-fr', 'yandex', 'anon-cs-berlin', 'anon-cs-ch', 'anon-cs-dc', 'anon-cs-fl']
+server_names = ['cloudflare', 'odoh-cloudflare', 'wikimedia', 'nextdns', 'libredns', 'fdn', 'comss.one', 'bortzmeyer', 'scaleway-fr', 'anon-cs-berlin', 'anon-cs-ch', 'anon-cs-dc', 'anon-cs-fl']
 lb_strategy = 'ph'
 lb_estimator = true
 
