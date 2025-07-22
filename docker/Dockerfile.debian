@@ -9,7 +9,7 @@ WORKDIR /tmp
 
 RUN  apt update && apt -y upgrade && \
      apt install -y dnscrypt-proxy dnsmasq ca-certificates openssl && \
-     mkdir -p /scratch /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy && \
+     mkdir -p /scratch /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy /scratch/var/lib/dpkg && \
      chown nobody /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy && \
      apt download dnsmasq-base libidn2-0 libnetfilter-conntrack3 libnettle8t64 libdbus-1-3 \
      libhogweed6t64 libgmp10 libnftables1 libsystemd0 libunistring5 libnfnetlink0 \
@@ -18,13 +18,14 @@ RUN  apt update && apt -y upgrade && \
      apt download base-files netbase busybox mawk && \
      apt download dnscrypt-proxy libc6 && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
-     find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >/etc/dpkg/list.txt && \
+     ls /tmp/*.deb|xargs -I{} dpkg -f {} >>/scratch/var/lib/dpkg/status && \
+     find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >>/scratch/var/lib/dpkg/list.txt && \
      printf /bin/sh > /scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
      cd /scratch/usr/bin && ln -s busybox sh && \
      tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /etc/ca-certificates.conf \
-         /etc/passwd /etc/group /etc/shadow /etc/gshadow /etc/dpkg/list.txt \
-         | (cd /scratch; tar xvfp -)
+       /etc/passwd /etc/group /etc/shadow /etc/gshadow \
+          | (cd /scratch; tar xvfp -)
 
 #----------------------------------------------------------------------------------------------------
 FROM scratch
