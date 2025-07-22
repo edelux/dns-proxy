@@ -20,7 +20,8 @@ RUN  apt update && apt -y upgrade && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
      ls /tmp/*.deb|xargs -I{} dpkg -f {} >>/scratch/var/lib/dpkg/status && \
      sed -i 's/Package/\nPackage/g' /scratch/var/lib/dpkg/status && \
-     sed -i 's/Version/Status: install ok installed\nVersion/g' /scratch/var/lib/dpkg/status && \
+     sed -i 's/Description/Status: install ok installed\nDescription/g' /scratch/var/lib/dpkg/status && \
+     sed -i 1d /scratch/var/lib/dpkg/status && \
      find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >>/scratch/var/lib/dpkg/list.txt && \
      printf /bin/sh > /scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
