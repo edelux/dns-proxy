@@ -18,7 +18,7 @@ RUN  apt update && apt -y upgrade && \
      apt download base-files netbase busybox mawk && \
      apt download dnscrypt-proxy libc6 && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
-     ls /tmp/*.deb|xargs -I{} dpkg -f {} >>/scratch/var/lib/dpkg/status && \
+     ls /tmp/*.deb|xargs -I{} dpkg-deb -f {} >>/scratch/var/lib/dpkg/status && \
      sed -i 's/Package/\nPackage/g' /scratch/var/lib/dpkg/status && \
      sed -i 's/Description/Status: install ok installed\nDescription/g' /scratch/var/lib/dpkg/status && \
      sed -i 1d /scratch/var/lib/dpkg/status && \
@@ -27,8 +27,8 @@ RUN  apt update && apt -y upgrade && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
      cd /scratch/usr/bin && ln -s busybox sh && \
      tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /etc/ca-certificates.conf \
-       /etc/passwd /etc/group /etc/shadow /etc/gshadow \
-          | (cd /scratch; tar xvfp -)
+        /etc/passwd /etc/group /etc/shadow /etc/gshadow \
+           | (cd /scratch; tar xvfp -)
 
 #----------------------------------------------------------------------------------------------------
 FROM scratch
