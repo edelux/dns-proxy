@@ -18,11 +18,12 @@ RUN  apt update && apt -y upgrade && \
      apt download base-files netbase busybox mawk && \
      apt download dnscrypt-proxy libc6 && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
+     find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >/etc/dpkg/list.txt && \
      printf /bin/sh > /scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
      cd /scratch/usr/bin && ln -s busybox sh && \
      tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /etc/ca-certificates.conf \
-         /etc/passwd /etc/group /etc/shadow /etc/gshadow \
+         /etc/passwd /etc/group /etc/shadow /etc/gshadow /etc/dpkg/list.txt \
          | (cd /scratch; tar xvfp -)
 
 #----------------------------------------------------------------------------------------------------
