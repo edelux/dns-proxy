@@ -15,8 +15,8 @@ RUN  apt update && apt -y upgrade && \
      libhogweed6t64 libgmp10 libnftables1 libsystemd0 libunistring5 libnfnetlink0 \
      libmnl0 libxtables12 libjansson4 libcap2 libnftnl11 dns-root-data && \
      apt download openssl ca-certificates libssl3t64 libcrypt1 libzstd1 zlib1g perl-base perl-modules-5.40 perl && \
-     apt download libpcre2-8-0 libselinux1 base-files netbase dash coreutils mawk && \
-     apt download dnscrypt-proxy libc6 && \
+     apt download libpcre2-8-0 libselinux1 libacl1 libattr1 libc6 base-files netbase dash coreutils debianutils sed mawk && \
+     apt download dnscrypt-proxy && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
      ls /tmp/*.deb|xargs -I{} dpkg-deb -f {} >>/scratch/var/lib/dpkg/status && \
      sed -i 's/Package/\nPackage/g' /scratch/var/lib/dpkg/status && \
@@ -25,9 +25,8 @@ RUN  apt update && apt -y upgrade && \
      find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >>/scratch/var/lib/dpkg/list.txt && \
      printf "%s\n" '/bin/sh' '/bin/dash' '/usr/bin/sh' '/usr/bin/dash' >/scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
-     tar cvf - /var/cache/dnscrypt-proxy /var/log/dnscrypt-proxy /etc/ca-certificates.conf \
-        /etc/passwd /etc/group /etc/shadow /etc/gshadow \
-           | (cd /scratch; tar xvfp -)
+     tar cvf - /etc/ca-certificates.conf /etc/passwd /etc/group /etc/shadow /etc/gshadow \
+        | (cd /scratch; tar xvfp -)
 
 #----------------------------------------------------------------------------------------------------
 FROM scratch
