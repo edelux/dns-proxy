@@ -23,7 +23,7 @@ RUN  apt update && apt -y upgrade && \
      sed -i 's/Package/\nPackage/g' /scratch/var/lib/dpkg/status && \
      sed -i 's/Description/Status: install ok installed\nDescription/g' /scratch/var/lib/dpkg/status && \
      sed -i 1d /scratch/var/lib/dpkg/status && \
-     find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >>/scratch/var/lib/dpkg/list.txt && \
+     find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >/scratch/var/lib/dpkg/list.txt && \
      printf "%s\n" '/bin/sh' '/bin/dash' '/usr/bin/sh' '/usr/bin/dash' >/scratch/etc/shells && \
      rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
      tar cvf - /etc/ca-certificates.conf /etc/passwd /etc/group /etc/shadow /etc/gshadow \
