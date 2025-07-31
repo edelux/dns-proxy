@@ -8,6 +8,7 @@ ENV  DEBCONF_NOWARNINGS=no
 WORKDIR /tmp
 
 RUN  apt update && apt -y upgrade && \
+     rm -rf /var/cache/apt/archives/*.deb && \
      apt install -y dnscrypt-proxy dnsmasq ca-certificates openssl && \
      mkdir -p /scratch /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy /scratch/var/lib/dpkg && \
      chown nobody /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy && \
