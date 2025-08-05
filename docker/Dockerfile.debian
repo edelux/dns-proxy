@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #----------------------------------------------------------------------------------------------------
-FROM debian:testing-slim AS base
+FROM debian:stable-slim AS base
 
 ENV  DEBIAN_FRONTEND=noninteractive
 ENV  DEBCONF_NOWARNINGS=no
@@ -10,14 +10,20 @@ WORKDIR /tmp
 RUN  apt update && apt -y upgrade && \
      rm -rf /var/cache/apt/archives/*.deb && \
      apt install -y dnscrypt-proxy dnsmasq ca-certificates openssl && \
+     perl -pi -e 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
+     printf '%s\n' 'Package: *' 'Pin: release a=testing' 'Pin-Priority: 100' >/etc/apt/preferences.d/limit-testing && \
+     printf '%s\n' 'Types: deb' 'URIs: https://deb.debian.org/debian' 'Suites: testing testing-updates' \
+     'Components: main contrib non-free non-free-firmware' 'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
+     >/etc/apt/sources.list.d/debian-testing.sources && \
+     chmod a+r /etc/apt/sources.list.d/debian-testing.sources /etc/apt/preferences.d/limit-testing && apt update && \
      mkdir -p /scratch /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy /scratch/var/lib/dpkg && \
      chown nobody /scratch/var/cache/dnscrypt-proxy /scratch/var/log/dnscrypt-proxy && \
-     apt download dnsmasq-base libidn2-0 libnetfilter-conntrack3 libnettle8t64 libdbus-1-3 \
-     libhogweed6t64 libgmp10 libnftables1 libsystemd0 libunistring5 libnfnetlink0 \
+     apt download dnsmasq-base libidn2-0 libnetfilter-conntrack3 libnettle8 libdbus-1-3 \
+     libhogweed6 libgmp10 libnftables1 libsystemd0 libunistring2 libnfnetlink0 \
      libmnl0 libxtables12 libjansson4 libcap2 libnftnl11 dns-root-data && \
-     apt download openssl ca-certificates libssl3t64 libcrypt1 liblzma5 libmd0 libzstd1 libbz2-1.0 zlib1g && \
+     apt download openssl ca-certificates libssl3 libcrypt1 liblzma5 libmd0 libzstd1 libbz2-1.0 zlib1g && \
      apt download libpcre2-8-0 libselinux1 libacl1 libattr1 libc6 base-files netbase dash coreutils \
-     debianutils dpkg perl-base perl-modules-5.40 perl tar sed mawk && \
+     debianutils dpkg perl-base perl-modules-5.36 perl tar sed mawk && \
      apt download dnscrypt-proxy && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
      ls /tmp/*.deb|xargs -I{} dpkg-deb -f {} >>/scratch/var/lib/dpkg/status && \
