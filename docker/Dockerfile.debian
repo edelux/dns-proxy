@@ -26,7 +26,8 @@ RUN  apt update && apt -y upgrade && \
      sed -i 1d /scratch/var/lib/dpkg/status && \
      find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >/scratch/var/lib/dpkg/list.txt && \
      printf "%s\n" '/bin/sh' '/bin/dash' '/usr/bin/sh' '/usr/bin/dash' >/scratch/etc/shells && \
-     rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
+     rm -fr /scratch/usr/share/doc /scratch/usr/share/man /scratch/usr/share/locale \
+     /scratch/usr/share/info /scratch/usr/share/common-licenses && \
      tar cvf - /etc/ca-certificates.conf /etc/passwd /etc/group /etc/shadow /etc/gshadow \
         | (cd /scratch; tar xvfp -)
 
