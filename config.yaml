@@ -10,4 +10,5 @@ docker:
     - BUILD_TARGETARCH: {{ TARGETARCH }}
     - BUILD_VERSION: '{{ VERSION }}'
     - BUILD_DATE: {{ DATE }}
+    - GIT_COMMIT: {{ github.sha }}
 ...
