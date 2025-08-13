@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #----------------------------------------------------------------------------------------------------
-FROM debian:stable-slim AS base
+FROM debian AS base
 
 ENV  DEBIAN_FRONTEND=noninteractive
 ENV  DEBCONF_NOWARNINGS=no
