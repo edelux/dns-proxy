@@ -105,11 +105,10 @@ doh_servers = true
 
 ---
 ### 📦 Architecture Support
+- amd64
 - arm64
-- riscv64
 - ppc64le
 - s390x
-- amd64
 
 ### ✅ Use Cases
 - Lightweight encrypted DNS proxy for secure-by-default setups

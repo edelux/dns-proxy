@@ -45,17 +45,14 @@ ARG BUILD_VERSION
 ARG BUILD_DATE
 ARG GIT_COMMIT
 
-LABEL org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,riscv64,s390x,mips64le" \
+LABEL org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,riscv64,s390x" \
       org.opencontainers.image.documentation="https://github.com/edelux/dns-proxy#readme" \
       org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
-      org.opencontainers.image.source="https://github.com/edelux/dns-proxy" \
       org.opencontainers.image.url="https://github.com/edelux/dns-proxy" \
       org.opencontainers.image.platform="${TARGETOS}/${TARGETARCH}" \
       org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
       org.opencontainers.image.architecture="${TARGETARCH}" \
       org.opencontainers.image.version="${BUILD_VERSION}" \
-      org.opencontainers.image.revision="${GIT_COMMIT}" \
-      org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.vendor="edelux" \
       org.opencontainers.image.licenses="MIT"
 
