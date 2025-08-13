@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #----------------------------------------------------------------------------------------------------
-FROM debian:testing-slim AS base
+FROM debian AS base
 
 ENV  DEBIAN_FRONTEND=noninteractive
 ENV  DEBCONF_NOWARNINGS=no
@@ -17,7 +17,7 @@ RUN  apt update && apt -y upgrade && \
      libmnl0 libxtables12 libjansson4 libcap2 libnftnl11 dns-root-data && \
      apt download openssl ca-certificates libssl3t64 libcrypt1 liblzma5 libmd0 libzstd1 libbz2-1.0 zlib1g && \
      apt download libpcre2-8-0 libselinux1 libacl1 libattr1 libc6 base-files netbase dash coreutils \
-     debianutils dpkg perl-base perl-modules-5.40 perl tar sed mawk && \
+     debianutils dpkg perl-base perl-modules-5.40 perl sed mawk && \
      apt download dnscrypt-proxy && \
      ls /tmp/*.deb|xargs -I{} dpkg -x {} /scratch && \
      ls /tmp/*.deb|xargs -I{} dpkg-deb -f {} >>/scratch/var/lib/dpkg/status && \
@@ -26,7 +26,8 @@ RUN  apt update && apt -y upgrade && \
      sed -i 1d /scratch/var/lib/dpkg/status && \
      find /tmp -name \*.deb |sed 's/%/:/'| sed 's|/tmp/||' | awk -F_ '{print $1,$2}' >/scratch/var/lib/dpkg/list.txt && \
      printf "%s\n" '/bin/sh' '/bin/dash' '/usr/bin/sh' '/usr/bin/dash' >/scratch/etc/shells && \
-     rm -fr /scratch/usr/share/{doc,man,locale,common-licenses} && \
+     rm -fr /scratch/usr/share/doc /scratch/usr/share/man /scratch/usr/share/locale \
+     /scratch/usr/share/info /scratch/usr/share/common-licenses && \
      tar cvf - /etc/ca-certificates.conf /etc/passwd /etc/group /etc/shadow /etc/gshadow \
         | (cd /scratch; tar xvfp -)
 
@@ -37,25 +38,23 @@ COPY entrypoint.sh /
 COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 COPY dnsmasq.conf /etc/dnsmasq.conf
 
-ARG BUILD_TARGETARCH
-ARG BUILD_SIGNATURE
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG TARGETOS
 ARG BUILD_VERSION
 ARG BUILD_DATE
 ARG GIT_COMMIT
 
-LABEL org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
-      org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
-      org.opencontainers.image.description="A minimal Alpine-based container that runs dnsmasq with DNSCrypt-proxy as a local resolver for secure DNS queries over HTTPS (DoH)." \
-      org.opencontainers.image.architecture="${BUILD_TARGETARCH:-unknown}" \
-      org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,s390x,mips64le,riscv64,arm32v6,arm32v7,arm64v8,arm32v5,i386" \
-      org.opencontainers.image.platform="linux/${BUILD_TARGETARCH:-unknown}" \
-      org.opencontainers.image.source="https://github.com/edelux/dns-proxy" \
-      org.opencontainers.image.url="https://github.com/edelux/dns-proxy" \
-      org.opencontainers.image.version="${BUILD_VERSION:-0.0.8}" \
-      org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.created=$BUILD_DATE \
+LABEL org.opencontainers.image.supported.architectures="amd64,arm64,ppc64le,riscv64,s390x" \
       org.opencontainers.image.documentation="https://github.com/edelux/dns-proxy#readme" \
-      org.opencontainers.image.vendor="edelux"
+      org.opencontainers.image.title="Lightweight DNS proxy with dnsmasq and DNSCrypt" \
+      org.opencontainers.image.url="https://github.com/edelux/dns-proxy" \
+      org.opencontainers.image.platform="${TARGETOS}/${TARGETARCH}" \
+      org.opencontainers.image.authors="Ernie D'lux (edelux) EDH" \
+      org.opencontainers.image.architecture="${TARGETARCH}" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.vendor="edelux" \
+      org.opencontainers.image.licenses="MIT"
 
 RUN  ln -sf /usr/bin/mawk /usr/bin/awk && \
      ln -sf /usr/bin/mawk /usr/bin/nawk && \

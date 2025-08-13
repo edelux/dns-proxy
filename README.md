@@ -5,7 +5,7 @@ A secure, minimal DNS resolver container with DNS-over-HTTPS (DoH), caching, and
 
 ## 🐧 About
 
-`edelux/dns-proxy` is a lightweight container built from [Debian Testing](https://www.debian.org/releases/testing/) and designed for high-security, low-footprint DNS resolution.
+`edelux/dns-proxy` is a lightweight container built from [Debian Stable](https://www.debian.org/releases/stable/) and designed for high-security, low-footprint DNS resolution.
 
 This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-proxy) and [`dnsmasq`](https://thekelleys.org.uk/dnsmasq/doc.html) to provide:
 
@@ -62,7 +62,6 @@ no-hosts
 no-resolv
 bogus-priv
 user=nobody
-group=nogroup
 cache-size=128
 keep-in-foreground
 server=127.0.0.1#5300
@@ -124,7 +123,7 @@ doh_servers = true
 - No unnecessary binaries or language runtimes
 
 ### 🛠 Build Philosophy
-- Based on Debian Testing packages
+- Based on Debian packages
 - Runtime built from scratch
 - Uses dpkg -x to extract only required files
 - No runtime apt install or package manager
