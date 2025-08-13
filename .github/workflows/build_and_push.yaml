@@ -13,16 +13,17 @@ on:
       - '.github/**'
       - 'docker/compose.yaml'
 
-  pull_request:
-    paths-ignore:
-      - 'LICENSE'
-      - 'README.md'
-      - '.gitignore'
-      - '.github/**'
-      - 'docker/compose.yaml'
-
 jobs:
   validate-yaml-config:
+    if: ${{ !(
+      github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'Merge pull request') &&
+      (
+        contains(github.event.head_commit.message, '/feature/') ||
+        contains(github.event.head_commit.message, '/feat/') ||
+        contains(github.event.head_commit.message, '/fix/')
+      )
+    ) }}
     uses: edelux/cicd-test-lint/.github/workflows/validate-yaml-config.yaml@main
     with:
       config_path: config.yaml
@@ -33,6 +34,7 @@ jobs:
 
   build-and-push:
     needs: validate-yaml-config
+    if: ${{ needs.validate-yaml-config.result == 'success' }}
     uses: edelux/cicd-build-push/.github/workflows/build_push.yaml@main
     with:
       config_path: config.yaml
