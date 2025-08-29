@@ -2,13 +2,13 @@
 docker:
   latest: true
   alias: dnsmasq
-  version: '{{ VERSION }}'
+  version: '{{VERSION}}'
   registry: docker.io
   filepath: docker
   filename: Dockerfile.debian
   platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
   build_args:
-    - BUILD_TARGETARCH: {{ TARGETARCH }}
-    - BUILD_VERSION: '{{ VERSION }}'
-    - BUILD_DATE: {{ DATE }}
+    - BUILD_TARGETARCH: {{TARGETARCH}}
+    - BUILD_VERSION: '{{VERSION}}'
+    - BUILD_DATE: {{DATE}}
 ...

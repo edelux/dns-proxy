@@ -1,26 +1,30 @@
 ---
-version: '3.8'
-
 services:
   dns-proxy:
     image: edelux/dns-proxy:latest
-    pull_policy: always
     container_name: dns-proxy
-    read_only: false
+    pull_policy: missing
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     cap_add:
-      - CHOWN
       - SETUID
       - SETGID
+      - NET_BIND_SERVICE
     tmpfs:
       - /run
+      - /tmp
+      - /var/run
     ports:
-      - 53:53/tcp
-      - 53:53/udp
+      - '53:53/udp'
     command: >
       --anonymized
       --cachesize=1024
+      --server=/default/192.168.122.1
       --server=/ec2.internal/10.18.0.2
       --server=/amazonaws.com/10.18.0.2
       --server=/compute.internal/10.18.0.2
-    restart: unless-stopped
+    restart: always
 ...
