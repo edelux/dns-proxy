@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  This profile forces system-wide DNS-over-HTTPS (DoH) on iOS/iPadOS 18+
+  using Cloudflare's "Families" endpoint (malware + adult blocking).
+  Notes:
+    - MatchDomains = [""] means "default domain" → apply DoH globally.
+    - ServerAddresses are optional bootstrap IPs to reach the DoH hostname.
+    - PayloadUUIDs are random UUIDv4 values; keep them stable if you plan
+      to update/replace the same installed payload later.
+-->
+<plist version="1.0">
+<dict>
+
+  <!-- Array of payloads this profile installs (only one: DNS Settings) -->
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <!-- Payload type for Encrypted DNS (DNS Settings) -->
+      <key>PayloadType</key>
+      <string>com.apple.dnsSettings.managed</string>
+
+      <!-- PayloadVersion is typically 1 for this payload -->
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+
+      <!-- Reverse-DNS identifier for this payload item -->
+      <key>PayloadIdentifier</key>
+      <string>com.cloudflare.doh.families.settings</string>
+
+      <!-- Unique ID for THIS payload item (keep stable for updates) -->
+      <key>PayloadUUID</key>
+      <string>8B93C7A2-C50C-44AF-BF57-685246D13E73</string>
+
+      <!-- Friendly name shown in Settings -->
+      <key>PayloadDisplayName</key>
+      <string>Encrypted DNS (DoH) — Cloudflare Families (malware+adult) (DNS Settings)</string>
+
+      <!-- Actual DNS configuration -->
+      <key>DNSSettings</key>
+      <dict>
+        <!-- Protocol can be HTTPS (DoH) or TLS (DoT); we use HTTPS -->
+        <key>DNSProtocol</key>
+        <string>HTTPS</string>
+
+        <!-- Cloudflare Families DoH endpoint -->
+        <key>ServerURL</key>
+        <string>https://family.cloudflare-dns.com/dns-query</string>
+
+        <!-- Optional bootstrap IPs to reach the DoH hostname -->
+        <key>ServerAddresses</key>
+        <array>
+          <string>1.1.1.3</string>
+          <string>1.0.0.3</string>
+          <string>2606:4700:4700::1113</string>
+          <string>2606:4700:4700::1003</string>
+        </array>
+
+        <!-- Empty string = default domain → apply to all DNS lookups -->
+        <key>MatchDomains</key>
+        <array>
+          <string></string>
+        </array>
+      </dict>
+    </dict>
+  </array>
+
+  <!-- Top-level profile metadata -->
+  <key>PayloadType</key>
+  <string>Configuration</string>
+
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+
+  <!-- Reverse-DNS identifier for the WHOLE profile -->
+  <key>PayloadIdentifier</key>
+  <string>com.cloudflare.doh.families</string>
+
+  <!-- Unique ID for the WHOLE profile (keep stable for updates) -->
+  <key>PayloadUUID</key>
+  <string>4E8B5E22-A075-4DEF-BA1D-C736B26320E5</string>
+
+  <key>PayloadDisplayName</key>
+  <string>Encrypted DNS (DoH) — Cloudflare Families (malware+adult)</string>
+
+  <key>PayloadOrganization</key>
+  <string>Personal</string>
+
+  <!-- Shown to the user during install -->
+  <key>PayloadDescription</key>
+  <string>Forces system-wide DNS-over-HTTPS using Cloudflare 1.1.1.1 for Families (malware + adult blocking).</string>
+
+  <!-- Allow user to remove it in Settings -->
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+</dict>
+</plist>
