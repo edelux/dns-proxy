@@ -21,7 +21,7 @@ This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-prox
 - **Split DNS**: forward selected domains to traditional DNS servers
 - **Non-root execution** using `nobody` user
 - Runtime image built **from scratch** for a minimal footprint
-- Based on Debian packages unpacked with `dpkg -x` during build (no `apt install` needed at runtime)
+- **Based on Debian** packages unpacked with `dpkg -x` during build (no `apt install` needed at runtime)
 - Includes /var/lib/dpkg/list.txt with an inventory of extracted Debian packages and their versions, and /var/lib/dpkg/status with package metadata for auditing and vulnerability scanning.
 
 ---
