@@ -31,10 +31,7 @@ docker run --rm -p 127.0.0.1:53:53/udp -d edelux/dns-proxy
 
 For infrastructure deployments, the original example remains available with the intended network exposure and split-DNS options:
 ```zsh
-docker run --rm -p 53:53/udp -d edelux/dns-proxy \
-  --anonymized \
-  --server=/ec2.internal/10.18.0.2 \
-  --server=/amazonaws.com/10.18.0.2
+docker run --rm -p 53:53/udp -d edelux/dns-prox--anonymized --server=/ec2.internal/10.18.0.2 --server=/amazonaws.com/10.18.0.2
 ```
 
 This configuration enables:
