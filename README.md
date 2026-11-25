@@ -1,17 +1,15 @@
 
 # dns-proxy
-
 A secure, minimal DNS resolver container with DNS-over-HTTPS (DoH), caching, and split DNS — ideal for cloud and local infrastructure.
 
 ## 🐧 About
-
 `edelux/dns-proxy` is a lightweight container built from [Debian Stable](https://www.debian.org/releases/stable/) and designed for high-security, low-footprint DNS resolution.
 
 This project began as a practical solution for securing DNS resolution on my own Linux laptop.  I wanted to reduce how much of my internet activity could be inferred from DNS queries by my Internet Service Provider (ISP) and the DNS resolver operator — often the same organization. Although most of my connections already use encrypted protocols such as TLS (historically known as SSL), SSH, and other secure transports, traditional DNS queries are typically transmitted without encryption. That makes domain lookups observable and potentially loggable, even when the application traffic itself is encrypted.
 
 Encrypting DNS protects DNS queries in transit to the selected resolver, but **does not make internet browsing anonymous**. ISPs may still observe destination IP addresses, traffic patterns, and other metadata. The DNS resolver itself may also see queries, depending on the protocol and anonymization configuration. Anonymized DNSCrypt can separate the client IP address from the DNS query as seen by the upstream resolver when correctly configured with compatible relays; it is not the same thing as ordinary DoH.
 
-Over time, this personal project evolved into a reusable DNS service that I also incorporate into infrastructure environments for organizations I advise as a Platform Engineer and Information Security specialist.  I hope it proves useful in your own work, too! ;-)
+Over time, this personal project evolved into a reusable DNS service that I also incorporate into the IT infrastructure of organizations I advise as a Platform Engineer and Information Security Specialist. I hope you find it useful, whether for personal use or as part of your IT infrastructure!  ;-)
 
 This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-proxy) and [`dnsmasq`](https://thekelleys.org.uk/dnsmasq/doc.html) to provide:
 
@@ -26,7 +24,6 @@ This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-prox
 
 ---
 ## 🚀 Quick Start
-
 For a local workstation, bind the published DNS port to the host loopback interface only:
 ```zsh
 docker run --rm -p 127.0.0.1:53:53/udp -d edelux/dns-proxy
@@ -41,7 +38,6 @@ docker run --rm -p 53:53/udp -d edelux/dns-proxy \
 ```
 
 This configuration enables:
-
 - Anonymized upstream resolution **where supported by the configured protocol and relay routes**
 - Split DNS resolution for AWS, for example, internal domains via traditional DNS, as required by the cloud network
 
@@ -56,9 +52,7 @@ Running the container does not automatically cause the operating system or appli
 The loopback address is local to **each machine**: configuring `127.0.0.1` on another device will not make that device use the resolver running on your laptop. Start the container and verify its published port before switching system DNS, or name resolution may fail.
 
 ### Linux: `/etc/resolv.conf`
-
 On systems where `/etc/resolv.conf` is managed directly, configure:
-
 ```conf
 nameserver 127.0.0.1
 ```
@@ -67,7 +61,6 @@ For example, edit with `sudoedit /etc/resolv.conf`. **First check whether it is 
 
 ### Debian and derivatives using `resolvconf`
 If your system **actually uses the `resolvconf` package** to generate `/etc/resolv.conf`, edit:
-
 ```text
 /etc/resolvconf/resolv.conf.d/base
 ```
@@ -92,7 +85,6 @@ On RHEL, Fedora, Rocky Linux, AlmaLinux, and other NetworkManager-managed system
 
 ### Linux with `systemd-resolved`
 Configure DNS through `systemd-resolved` or its network manager rather than overwriting a managed symlink. For example, a system-wide drop-in can be created at `/etc/systemd/resolved.conf.d/dns-proxy.conf`:
-
 ```ini
 [Resolve]
 DNS=127.0.0.1
@@ -105,7 +97,7 @@ Restart the service (`sudo systemctl restart systemd-resolved`) and inspect `res
 On macOS, open **System Settings → Network → your active connection → Details → DNS**, and add `127.0.0.1` as the DNS server. Remove or adjust competing servers only if appropriate for your network. The proxy must be reachable on the macOS host (for example, via Docker Desktop with the port published on loopback). VPNs, managed profiles, and scoped DNS resolvers may take precedence.
 
 ### Windows 10/11
-pen **Settings → Network & Internet → your active Wi-Fi/Ethernet connection → DNS server assignment → Edit** and configure manual DNS to `127.0.0.1` where supported. Ensure Docker Desktop publishes UDP port 53 to the Windows host loopback and that no other service occupies the port. Corporate policies, VPN clients, browser-specific DNS settings, and IPv6 may affect which resolver is actually used.
+Open **Settings → Network & Internet → your active Wi-Fi/Ethernet connection → DNS server assignment → Edit** and configure manual DNS to `127.0.0.1` where supported. Ensure Docker Desktop publishes UDP port 53 to the Windows host loopback and that no other service occupies the port. Corporate policies, VPN clients, browser-specific DNS settings, and IPv6 may affect which resolver is actually used.
 
 ### Verify and troubleshoot
 ```zsh
@@ -114,6 +106,7 @@ docker ps
 
 # Query the local DNS proxy directly (requires dig)
 dig @127.0.0.1 x.org
+dig @127.0.0.1 x.org +tcp
 
 # Inspect resolver ownership/configuration on Linux
 ls -l /etc/resolv.conf
@@ -127,12 +120,24 @@ A successful direct `dig` test confirms the proxy responds, **not** that every a
 ---
 ## 🐳 Docker Compose
 For a reproducible deployment with additional container security controls, use the provided docker/compose.yaml configuration:
-
 ```zsh
 docker compose -f docker/compose.yaml up -d
 ```
 
+Or docker cli
+```zsh
+docker run -d --restart always --name dns-proxy -p 127.0.0.1:53:53/udp -p 127.0.0.1:53:53/tcp edelux/dns-proxy
+```
+
 This configuration enables a read-only filesystem, drops unnecessary Linux capabilities, prevents privilege escalation, and binds DNS exclusively to the host loopback interface (127.0.0.1).
+
+---
+## 🔐 DNS Privacy Considerations
+Before configuring your operating system to use the local DNS proxy, ensure that the container is running and accessible on 127.0.0.1:53.
+
+To minimize DNS leaks, avoid configuring external fallback DNS servers and review any DNS settings introduced by IPv6, VPN clients, network management services, or browsers with built-in encrypted DNS capabilities.
+
+Keep in mind that encrypted DNS improves DNS privacy but does not provide full network anonymity or replace a VPN.
 
 ---
 ## ⚙️ Configuration via Parameters
@@ -148,8 +153,8 @@ Configuration is handled at runtime using command-line flags:
 | `--anonymized`  | Enables anonymized routing of DoH queries using relay resolvers. |
 
 All parameters are optional and can be combined as supported by the image.
-## ♻️ Default Settings
 
+## ♻️ Default Settings
 **dmsmasq**
 ```conf
 no-poll
@@ -242,7 +247,8 @@ These files provide package information without requiring a package manager in t
 - Focused on minimalism, clarity, and reproducibility
 
 ### 📎 Links
-[edelux/dns-proxy](https://hub.docker.com/repository/docker/edelux/dns-proxy)
+- **GitHub:** [edelux/dns-proxy](https://github.com/edelux/dns-proxy)
+- **DockerHub:** [edelux/dns-proxy](https://hub.docker.com/r/edelux/dns-proxy)
 
 ### ✨ License
 This project is released under the [`MIT`](https://github.com/edelux/dns-proxy#MIT-1-ov-file)
