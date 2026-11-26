@@ -22,16 +22,23 @@ This image combines [`dnscrypt-proxy`](https://github.com/DNSCrypt/dnscrypt-prox
 - **Based on Debian** packages unpacked with `dpkg -x` during build (no `apt install` needed at runtime)
 - Includes /var/lib/dpkg/list.txt with an inventory of extracted Debian packages and their versions, and /var/lib/dpkg/status with package metadata for auditing and vulnerability scanning.
 
----
 ## 🚀 Quick Start
 For a local workstation, bind the published DNS port to the host loopback interface only:
 ```zsh
-docker run --rm -p 127.0.0.1:53:53/udp -d edelux/dns-proxy
+docker run --restart always --name dns-proxy \
+ -p 127.0.0.1:53:53/udp \
+ -p 127.0.0.1:53:53/tcp \
+ -d edelux/dns-proxy
 ```
 
 For infrastructure deployments, the original example remains available with the intended network exposure and split-DNS options:
 ```zsh
-docker run --rm -p 53:53/udp -d edelux/dns-prox--anonymized --server=/ec2.internal/10.18.0.2 --server=/amazonaws.com/10.18.0.2
+docker run --rm --restart always 
+ -p 53:53/udp -p 53:53/tcp \
+ -d edelux/dns-prox \
+ --server=/amazonaws.com/10.18.0.2 \
+ --server=/ec2.internal/10.18.0.2 \
+ --anonymized
 ```
 
 This configuration enables:
@@ -40,7 +47,6 @@ This configuration enables:
 
 **Exposure warning:** `-p 53:53/udp` publishes the DNS port on host interfaces by default. Use this only when network access is deliberately controlled (for example, by host firewalls and cloud security groups). The loopback-bound command is preferred for a single laptop. Publishing on the host's `127.0.0.1` is distinct from the container's own loopback interface.
 
----
 ## 💻 Configure Your Operating System to Use the Local DNS Proxy
 ### Why configure the system DNS resolver?
 
@@ -114,21 +120,14 @@ A successful direct `dig` test confirms the proxy responds, **not** that every a
 
 **Availability:** This local setup creates a DNS dependency on the container and Docker daemon. If they stop, ordinary DNS resolution can fail. For production, consider health checks, restart policies, monitoring, controlled network access, and redundant resolvers. The examples use UDP/53 as supported by the documented container invocation; verify TCP/53 support before relying on TCP fallback or large DNS responses.
 
----
 ## 🐳 Docker Compose
 For a reproducible deployment with additional container security controls, use the provided docker/compose.yaml configuration:
 ```zsh
 docker compose -f docker/compose.yaml up -d
 ```
 
-Or docker cli
-```zsh
-docker run -d --restart always --name dns-proxy -p 127.0.0.1:53:53/udp -p 127.0.0.1:53:53/tcp edelux/dns-proxy
-```
-
 This configuration enables a read-only filesystem, drops unnecessary Linux capabilities, prevents privilege escalation, and binds DNS exclusively to the host loopback interface (127.0.0.1).
 
----
 ## 🔐 DNS Privacy Considerations
 Before configuring your operating system to use the local DNS proxy, ensure that the container is running and accessible on 127.0.0.1:53.
 
@@ -136,7 +135,6 @@ To minimize DNS leaks, avoid configuring external fallback DNS servers and revie
 
 Keep in mind that encrypted DNS improves DNS privacy but does not provide full network anonymity or replace a VPN.
 
----
 ## ⚙️ Configuration via Parameters
 Configuration is handled at runtime using command-line flags:
 
@@ -200,7 +198,6 @@ doh_servers = true
       'https://download.dnscrypt.info/resolvers-list/v3/relays.md']
 ```
 
----
 ### 📦 Package Inventory
 The image includes Debian package metadata to support software inventory, security auditing, and vulnerability assessment.
 
@@ -216,7 +213,6 @@ docker run --rm --entrypoint /usr/bin/cat edelux/dns-proxy /var/lib/dpkg/status
 
 These files provide package information without requiring a package manager in the runtime image.
 
----
 ### 📦 Architecture Support
 - amd64
 - arm64
